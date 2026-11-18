@@ -1019,11 +1019,15 @@ footer{border-top:1px solid var(--line);padding-top:14px}
   // 빌드가 PUBLIC.pubOnly 를 켠 파일(공개판\index.html)에서만 동작한다. 매물 목록(items)은 아예 들어 있지 않다.
   const PUB = !!PUBLIC.pubOnly;
   // 문의 안내 칸(26.11.18 대표 지시, 공개안내서에만): 매물은 싣지 않으므로 "궁금하시면 문자·전화 주세요"로 연락을 받는다
-  const CTA = PUB ? `<aside class="cta" aria-label="매물 문의"><div><b>지금 나와 있는 매물이 궁금하신가요?</b><p>문자나 전화 주시면 원하시는 단지·평형에 맞춰 현재 매물과 가격을 정리해서 안내해 드리겠습니다.</p></div>
-    <div class="cta-b"><a href="sms:01093477522?&body=${encodeURIComponent("진산마을 안내서 보고 문의드립니다.\n관심 단지·평형: ")}">문자 보내기</a><a href="tel:01093477522">전화 010-9347-7522</a><button type="button" data-cgo="reqbuy">찾는 조건 남기기 ›</button></div></aside>` : "";
+  // 26.11.18 대표 지시(추가): 상담안내서에도 넣되 "다른 지역·다른 단지 매물도 정리해서 보내 드린다"는 내용으로. 공개안내서 문구에도 진산마을 외 다른 단지를 언급.
+  const ctaT = PUB
+    ? ["지금 나와 있는 매물이 궁금하신가요?", "문자나 전화 주시면 원하시는 단지·평형에 맞춰 현재 매물과 가격을 정리해서 안내해 드리겠습니다. 진산마을 외 다른 단지 매물도 함께 정리해 드립니다.", "진산마을 안내서 보고 문의드립니다.\n관심 단지·평형: "]
+    : ["다른 지역·다른 단지 매물도 찾고 계신가요?", "진산마을 외에 수지구 다른 단지나 다른 지역도, 문자나 전화 주시면 조건에 맞는 매물을 정리해서 보내 드리겠습니다.", "안내서 보고 문의드립니다.\n관심 지역·단지·평형: "];
+  const CTA = `<aside class="cta" aria-label="매물 문의"><div><b>${ctaT[0]}</b><p>${ctaT[1]}</p></div>
+    <div class="cta-b"><a href="sms:01093477522?&body=${encodeURIComponent(ctaT[2])}">문자 보내기</a><a href="tel:01093477522">전화 010-9347-7522</a><button type="button" data-cgo="reqbuy">찾는 조건 남기기 ›</button></div></aside>`;
+  $("dtabs").insertAdjacentHTML("beforebegin", CTA);   // 자리: 안내 문구 아래, 「단지소개」 줄 위 한 곳(26.11.18 대표 지시)
+  document.addEventListener("click", e => { const b = e.target.closest("[data-cgo]"); if (!b) return; cshow(b.dataset.cgo); window.scrollTo({top: $("ctabs").getBoundingClientRect().top + window.scrollY - 8}); });
   if (PUB){
-    $("dtabs").insertAdjacentHTML("beforebegin", CTA);   // 자리: 안내 문구 아래, 「단지소개」 줄 위 한 곳(26.11.18 대표 지시)
-    document.addEventListener("click", e => { const b = e.target.closest("[data-cgo]"); if (!b) return; cshow(b.dataset.cgo); window.scrollTo({top: $("ctabs").getBoundingClientRect().top + window.scrollY - 8}); });
     document.querySelector('#ctabs [data-c="naver"]').remove();
     document.querySelector('#ctabs [data-c="m3d"]').hidden = false;
     $("notice").innerHTML = '<b>황금1번지공인중개사사무소가 정리한 진산마을 안내 자료</b>입니다. 단지 소개와 국토교통부 실거래 신고 자료를 한눈에 보기 쉽게 정리했습니다. 참고용이며 사실과 다를 수 있으니, 계약 전에는 꼭 다시 확인해 주세요.<br>3D 기능은 구조를 한눈에 볼 수 있게 만든 참고용 자료로, 사실과 다를 수 있습니다. <button type="button" class="go3d" id="go3d">3D 모형 확인하기 ›</button>';
