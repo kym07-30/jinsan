@@ -1168,7 +1168,7 @@ footer{border-top:1px solid var(--line);padding-top:14px}
     const tiles = [["사용승인", esc(o.year), ""], ["세대수", djNum(o.hh) + "세대", esc(o.dongs)], [esc(o.stn || "가까운 역"), o.km != null ? "약 " + o.km + "km" : "-", "도보 길찾기 거리"], ["초등학교", esc((o.el || "").replace(/\(.*$/, "")), "배정"], ["세대당 주차", o.park != null ? o.park + "대" : "-", o.link ? "지하주차장 동 " + esc(o.link) : ""], ["용적률 · 건폐율", (o.far != null ? o.far + "%" : "-") + " · " + (o.bcr != null ? o.bcr + "%" : "-"), ""]];
     const kv = [["주소", [o.addr, o.road].filter(Boolean).join(" · ")], ["규모", [o.dongs, o.fl].filter(Boolean).join(" · ")], ["건설사", o.by], ["난방 · 현관", [o.heat, o.hall].filter(Boolean).join(" · ")], ["지하철", o.stnd], ["초등학교", o.el], ["중학교", o.mid], ["버스정류장", o.bus], ["단지 지형", o.slope]].filter(x => x[1]);
     $("view-danji").innerHTML = `<section class="tcard" aria-label="단지소개">
-      ${nDraft ? `<p class="dj-draft">아직 반영 전인 수정 ${nDraft}곳이 이 화면에만 미리 보입니다(사무실 보기 · 이 기기). 「편집」에서 「바뀐 내용 복사」한 글을 Claude에 붙여 넣으면 단지 사전과 공개 페이지에 반영됩니다.</p>` : ""}
+      ${nDraft ? `<p class="dj-draft">아직 반영 전인 수정 ${nDraft}곳이 이 화면에만 미리 보입니다(사무실 보기 · 이 기기). 「편집」에서 「저장하고 자동 반영」을 누르면 몇 분 뒤 단지 사전과 두 안내서에 반영됩니다.</p>` : ""}
       <div><h2>${esc(d.title)}</h2><p class="dj-addr">${esc(o.addr)}</p></div>
       <p class="dj-one">${esc(d.one)}</p>
       <div class="dj-tiles">${tiles.map(([a, b, c]) => `<div>${a}<b>${b}</b>${c ? `<small>${c}</small>` : ""}</div>`).join("")}</div>
@@ -1209,7 +1209,7 @@ footer{border-top:1px solid var(--line);padding-top:14px}
     const inp = ([key, lab, t]) => `<label>${lab}<input class="${c(key).trim()}" data-key="${key}" data-t="${t || "in"}" ${t === "num" ? 'inputmode="decimal"' : ""} value="${esc(djGet(d, key) ?? "")}"></label>`;
     const faq = [0, 1, 2].map(n => (d.faq || [])[n] || { q: "", a: "" });
     $("view-danji").innerHTML = `<section class="tcard" aria-label="단지소개 편집">
-      <div><h2>${esc(d.title)} · 편집</h2><p class="dj-addr">사무실 보기에서만 보입니다. 고친 칸은 금색으로 표시되고 이 기기에만 임시 저장됩니다. 다 고친 뒤 아래 「바뀐 내용 복사」를 눌러 Claude에 붙여 넣으면 단지 사전과 공개 페이지에 함께 반영됩니다.</p></div>
+      <div><h2>${esc(d.title)} · 편집</h2><p class="dj-addr">사무실 보기에서만 보입니다. 고친 칸은 금색으로 표시되고 이 기기에만 임시 저장됩니다. 다 고친 뒤 아래 「저장하고 자동 반영」을 누르면 사무실 컴퓨터가 몇 분 안에 단지 사전과 공개·상담 안내서에 반영합니다(처음 한 번 「단지소개_받은편지함」 폴더를 골라야 하며, 크롬·엣지에서만 됩니다).</p></div>
       <div class="dje">
         ${DJF.map(([key, lab, t]) => `<label>${lab}<textarea class="${c(key).trim()}" data-key="${key}" data-t="${t}">${esc(t === "list" ? (djGet(d, key) || []).join("\n") : djGet(d, key) || "")}</textarea></label>`).join("")}
         <h3 class="dj-h">자주 물어보시는 것</h3>
@@ -1220,13 +1220,32 @@ footer{border-top:1px solid var(--line);padding-top:14px}
         <h3 class="dj-h">평형 구성 — 동 · 향</h3>
         ${d.sizes.map(s => `<div class="szr"><b>${esc(s.n)}</b><input class="${c("sz." + s.n + ".d").trim()}" data-key="sz.${esc(s.n)}.d" data-t="in" placeholder="동" value="${esc(s.d)}"><input class="${c("sz." + s.n + ".w").trim()}" data-key="sz.${esc(s.n)}.w" data-t="in" placeholder="향" value="${esc(s.w)}"></div>`).join("")}
         <p class="tsrc">가격(실거래·호가)은 매일 자동으로 들어오므로 여기서 고치지 않습니다. 지도 표시 위치·평형 면적·세대수는 단지 사전에서 고칩니다.</p>
-        <div class="dje-bar"><button type="button" class="go" data-ed="copy">바뀐 내용 복사</button><button type="button" data-ed="view">고친 모습 보기</button><button type="button" data-ed="reset">이 단지 되돌리기</button><span id="djCnt"></span></div>
+        <div class="dje-bar"><button type="button" class="go" data-ed="save">저장하고 자동 반영</button><button type="button" data-ed="copy">바뀐 내용 복사</button><button type="button" data-ed="view">고친 모습 보기</button><button type="button" data-ed="reset">이 단지 되돌리기</button><span id="djCnt"></span></div>
         <textarea class="dje-out" id="djOut" readonly hidden></textarea>
       </div></section>`;
     $("view-danji").dataset.k = k; djCount();
   }
   const djAll = () => Object.entries(djDraft).filter(([, s]) => Object.keys(s).length).map(([cx, set]) => ({ cx, set }));
   function djCount(){ const a = djAll(), n = a.reduce((x, y) => x + Object.keys(y.set).length, 0); const el = $("djCnt"); if (el) el.textContent = n ? `반영 전 수정 ${n}곳 (${a.map(x => x.cx).join(", ")})` : "바뀐 내용 없음"; }
+  // 「저장하고 자동 반영」: 고른 폴더(드라이브의 단지소개_받은편지함)에 수정 파일을 쓴다. 사무실 컴퓨터가 그 폴더를 보고 사전·두 안내서에 반영한다(서버 전송 없음)
+  const IDB = { open(){ return new Promise((res, rej) => { const r = indexedDB.open("danjiInbox", 1); r.onupgradeneeded = () => r.result.createObjectStore("h"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+    async get(){ const db = await this.open(); return new Promise(res => { const q = db.transaction("h").objectStore("h").get("dir"); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); },
+    async set(v){ const db = await this.open(); return new Promise(res => { const t = db.transaction("h", "readwrite"); t.objectStore("h").put(v, "dir"); t.oncomplete = () => res(); t.onerror = () => res(); }); } };
+  async function djSaveToInbox(){
+    const a = djAll(); if (!a.length){ toast("바뀐 내용이 없어요"); return; }
+    if (!window.showDirectoryPicker){ toast("이 브라우저는 저장이 안 돼요. 크롬·엣지에서 열어 주세요(또는 「바뀐 내용 복사」)"); return; }
+    try {
+      let dir = null; try { dir = await IDB.get(); } catch(_){}
+      if (dir){ let p = await dir.queryPermission({ mode: "readwrite" }); if (p !== "granted") p = await dir.requestPermission({ mode: "readwrite" }); if (p !== "granted") dir = null; }
+      if (!dir){ toast("「단지소개_받은편지함」 폴더를 골라 주세요(처음 한 번)"); dir = await window.showDirectoryPicker({ id: "danji-inbox", mode: "readwrite" });
+        if (dir.name !== "단지소개_받은편지함"){ toast("폴더 이름이 「단지소개_받은편지함」이 아니에요. 황금1번지 클로드 > 매물사이트 안의 그 폴더를 골라 주세요"); return; }
+        try { await IDB.set(dir); } catch(_){} }
+      const t = new Date(), z = n => String(n).padStart(2, "0"), stamp = "" + t.getFullYear() + z(t.getMonth() + 1) + z(t.getDate()) + "-" + z(t.getHours()) + z(t.getMinutes()) + z(t.getSeconds());
+      const fh = await dir.getFileHandle("단지소개수정_" + stamp + ".json", { create: true }), w = await fh.createWritable();
+      await w.write(JSON.stringify({ v: 1, items: a })); await w.close();
+      toast("저장했어요. 몇 분 뒤 단지 사전과 두 안내서에 반영됩니다");
+    } catch(err){ if (err && err.name === "AbortError") return; toast("저장하지 못했어요. 「바뀐 내용 복사」를 대신 써 주세요"); }
+  }
   $("view-danji").addEventListener("input", e => {
     const el = e.target, k = +$("view-danji").dataset.k, base = DANJI[k]; if (!djMode || !base) return;
     let key = el.dataset.key, v;
@@ -1244,6 +1263,7 @@ footer{border-top:1px solid var(--line);padding-top:14px}
     const k = +$("view-danji").dataset.k;
     if (b.dataset.ed === "view"){ djMode = false; $("djEditBtn").setAttribute("aria-pressed", "false"); renderDanji(k); window.scrollTo({top: $("dtabs").getBoundingClientRect().top + window.scrollY - 8}); }
     else if (b.dataset.ed === "reset"){ delete djDraft[DANJI[k].cx]; djSave(); renderDanjiEdit(k); toast("이 단지의 수정을 되돌렸어요"); }
+    else if (b.dataset.ed === "save"){ djSaveToInbox(); }
     else if (b.dataset.ed === "copy"){ const a = djAll(); if (!a.length){ toast("바뀐 내용이 없어요"); return; }
       const msg = "단지소개 수정: " + JSON.stringify({ v: 1, items: a });
       const out = $("djOut"); out.hidden = false; out.value = msg;
